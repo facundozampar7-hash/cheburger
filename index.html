@@ -94,6 +94,66 @@
         background: linear-gradient(to right, var(--dorado), transparent);
     }
 
+    /* ---------- TABS (Hamburguesas / Promos) ---------- */
+    .tabs {
+        display: flex;
+        gap: 10px;
+        margin: 35px 0 18px;
+        border-bottom: 2px solid #3a2f26;
+    }
+
+    .tab-btn {
+        background: transparent;
+        color: #c9bca5;
+        border: none;
+        border-bottom: 3px solid transparent;
+        border-radius: 0;
+        padding: 12px 6px;
+        font-size: 1.05em;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: bold;
+    }
+
+    .tab-btn:hover {
+        background: transparent;
+        color: var(--crema);
+        transform: none;
+    }
+
+    .tab-btn.activo {
+        color: var(--dorado);
+        border-bottom-color: var(--dorado);
+    }
+
+    .tab-panel {
+        display: none;
+    }
+
+    .tab-panel.activo {
+        display: block;
+    }
+
+    /* ---------- PROMOS ---------- */
+    .promo-elecciones {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .promo-burger {
+        background: #211a13;
+        border: 1px solid #3a2f26;
+        border-radius: 8px;
+        padding: 10px 12px;
+    }
+
+    .promo-burger .label-campo {
+        margin-bottom: 6px;
+        color: var(--dorado);
+    }
+
     /* ---------- PRODUCTOS ---------- */
     .producto {
         background: var(--negro-suave);
@@ -396,8 +456,18 @@
 <p class="aviso">*Todas las burgers y promos incluyen papas fritas.</p>
 
 <main>
-    <div class="seccion-titulo"><h2>🍔 Menú de Hamburguesas</h2></div>
-    <div id="menu"></div>
+    <div class="tabs">
+        <button class="tab-btn activo" id="tab-burgers" onclick="cambiarTab('burgers')">🍔 Hamburguesas</button>
+        <button class="tab-btn" id="tab-promos" onclick="cambiarTab('promos')">🔥 Promos</button>
+    </div>
+
+    <div id="panel-burgers" class="tab-panel activo">
+        <div id="menu"></div>
+    </div>
+
+    <div id="panel-promos" class="tab-panel">
+        <div id="promos"></div>
+    </div>
 
     <div class="seccion-titulo"><h2>🧀 Extras</h2></div>
     <div id="extras">
@@ -446,8 +516,22 @@
     ];
 
     const precios = { "Simple": 6500, "Doble": 8200, "Triple": 9500, "Cuádruple": 11500 };
+
+    const promos = [
+        { id: "promo-doble", nombre: "PROMO 2 DOBLES", desc: "Elegí 2 hamburguesas dobles", precio: 15500 },
+        { id: "promo-triple", nombre: "PROMO 2 TRIPLES", desc: "Elegí 2 hamburguesas triples", precio: 18000 },
+        { id: "promo-cuadruple", nombre: "PROMO 2 CUÁDRUPLES", desc: "Elegí 2 hamburguesas cuádruples", precio: 22000 }
+    ];
+
     let carrito = [];
     let total = 0;
+
+    function cambiarTab(tab) {
+        document.getElementById('tab-burgers').classList.toggle('activo', tab === 'burgers');
+        document.getElementById('tab-promos').classList.toggle('activo', tab === 'promos');
+        document.getElementById('panel-burgers').classList.toggle('activo', tab === 'burgers');
+        document.getElementById('panel-promos').classList.toggle('activo', tab === 'promos');
+    }
 
     function renderMenu() {
         const container = document.getElementById('menu');
@@ -470,6 +554,52 @@
                 </div>
             `;
         });
+    }
+
+    function renderPromos() {
+        const container = document.getElementById('promos');
+        promos.forEach(promo => {
+            const opcionesBurgers = menu.map(item => `<option value="${item.nombre}">${item.nombre}</option>`).join('');
+            container.innerHTML += `
+                <div class="producto">
+                    <h3>${promo.nombre}</h3>
+                    <p class="desc">${promo.desc}</p>
+                    <span class="precio-base">$${promo.precio}</span>
+                    <div class="promo-elecciones">
+                        <div class="promo-burger">
+                            <span class="label-campo">Hamburguesa 1</span>
+                            <div class="fila-controles">
+                                <select id="${promo.id}-burger1">${opcionesBurgers}</select>
+                                <input type="text" id="${promo.id}-mod1" placeholder="¿Sacar algo?">
+                            </div>
+                        </div>
+                        <div class="promo-burger">
+                            <span class="label-campo">Hamburguesa 2</span>
+                            <div class="fila-controles">
+                                <select id="${promo.id}-burger2">${opcionesBurgers}</select>
+                                <input type="text" id="${promo.id}-mod2" placeholder="¿Sacar algo?">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-agregar" onclick="agregarPromo('${promo.id}')">Agregar al carrito</button>
+                </div>
+            `;
+        });
+    }
+
+    function agregarPromo(promoId) {
+        const promo = promos.find(p => p.id === promoId);
+        const burger1 = document.getElementById(`${promoId}-burger1`).value;
+        const mod1 = document.getElementById(`${promoId}-mod1`).value;
+        const burger2 = document.getElementById(`${promoId}-burger2`).value;
+        const mod2 = document.getElementById(`${promoId}-mod2`).value;
+
+        const detalle = `${burger1}${mod1 ? ' (Sin: ' + mod1 + ')' : ''} + ${burger2}${mod2 ? ' (Sin: ' + mod2 + ')' : ''}`;
+
+        carrito.push({ nombre: promo.nombre, carne: '', mods: detalle, precio: promo.precio, esPromo: true });
+        total += promo.precio;
+
+        actualizarUI();
     }
 
     function agregar(nombre) {
@@ -495,7 +625,7 @@
             <li>
                 <span class="item-info">
                     <button class="btn-quitar" onclick="quitarItem(${idx})" title="Quitar">✕</button>
-                    <span class="nombre-item">${i.nombre} ${i.carne} ${i.mods ? '(' + i.mods + ')' : ''}</span>
+                    <span class="nombre-item">${i.nombre} ${i.carne} ${i.esPromo ? '— ' + i.mods : (i.mods ? '(' + i.mods + ')' : '')}</span>
                 </span>
                 <span class="precio-item">$${i.precio}</span>
             </li>
@@ -520,7 +650,7 @@
         const direccion = document.getElementById('direccionCliente').value;
         const metodoPago = document.getElementById('metodoPago').value;
         let mensaje = `Hola, soy ${nombre}. Mi pedido:\n`;
-        carrito.forEach(i => mensaje += `- ${i.nombre} ${i.carne} ${i.mods ? '(Sin: ' + i.mods + ')' : ''}\n`);
+        carrito.forEach(i => mensaje += `- ${i.nombre} ${i.carne} ${i.esPromo ? '(' + i.mods + ')' : (i.mods ? '(Sin: ' + i.mods + ')' : '')}\n`);
         mensaje += `\nDirección de envío: ${direccion}`;
         mensaje += `\nMétodo de pago: ${metodoPago}`;
         mensaje += `\nTotal: $${total}`;
@@ -529,6 +659,7 @@
     }
 
     renderMenu();
+    renderPromos();
 </script>
 
 </body>
