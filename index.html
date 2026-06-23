@@ -339,6 +339,19 @@
         margin-bottom: 10px;
     }
 
+    .label-campo {
+        display: block;
+        font-size: 0.8em;
+        color: #c9bca5;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    #carrito select {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
     .btn-whatsapp {
         background: #25D366;
         width: 100%;
@@ -409,6 +422,12 @@
             <span>$<span id="total">0</span></span>
         </div>
         <input type="text" id="nombreCliente" placeholder="Tu nombre">
+        <input type="text" id="direccionCliente" placeholder="Dirección de envío">
+        <span class="label-campo">¿Cómo vas a pagar?</span>
+        <select id="metodoPago">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+        </select>
         <button class="btn-whatsapp" onclick="enviarWhatsApp()">📲 Pedir por WhatsApp</button>
     </div>
 </main>
@@ -498,8 +517,12 @@
 
     function enviarWhatsApp() {
         const nombre = document.getElementById('nombreCliente').value;
+        const direccion = document.getElementById('direccionCliente').value;
+        const metodoPago = document.getElementById('metodoPago').value;
         let mensaje = `Hola, soy ${nombre}. Mi pedido:\n`;
         carrito.forEach(i => mensaje += `- ${i.nombre} ${i.carne} ${i.mods ? '(Sin: ' + i.mods + ')' : ''}\n`);
+        mensaje += `\nDirección de envío: ${direccion}`;
+        mensaje += `\nMétodo de pago: ${metodoPago}`;
         mensaje += `\nTotal: $${total}`;
 
         window.open(`https://wa.me/5493425965661?text=${encodeURIComponent(mensaje)}`);
