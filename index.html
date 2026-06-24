@@ -645,17 +645,47 @@
         actualizarUI();
     }
 
+    const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbx3Fe_XyFllzpIugIuLXDAKuJ1YO1d14PgUDd1ILm27eggVE1T0ZSlt1YsV86GaWghhwg/exec";
+
     function enviarWhatsApp() {
+        if (carrito.length === 0) {
+            alert("Todavía no agregaste nada al carrito.");
+            return;
+        }
+
         const nombre = document.getElementById('nombreCliente').value;
         const direccion = document.getElementById('direccionCliente').value;
         const metodoPago = document.getElementById('metodoPago').value;
+
+        const detallePedido = carrito.map(i =>
+            `${i.nombre} ${i.carne} ${i.esPromo ? '(' + i.mods + ')' : (i.mods ? '(Sin: ' + i.mods + ')' : '')}`.trim()
+        ).join(" | ");
+
         let mensaje = `Hola, soy ${nombre}. Mi pedido:\n`;
         carrito.forEach(i => mensaje += `- ${i.nombre} ${i.carne} ${i.esPromo ? '(' + i.mods + ')' : (i.mods ? '(Sin: ' + i.mods + ')' : '')}\n`);
         mensaje += `\nDirección de envío: ${direccion}`;
         mensaje += `\nMétodo de pago: ${metodoPago}`;
         mensaje += `\nTotal: $${total}`;
 
+        guardarEnGoogleSheets({
+            cliente: nombre,
+            direccion: direccion,
+            pedido: detallePedido,
+            metodoPago: metodoPago,
+            total: total
+        });
+
         window.open(`https://wa.me/5493425965661?text=${encodeURIComponent(mensaje)}`);
+    }
+
+    function guardarEnGoogleSheets(datosPedido) {
+        fetch(URL_GOOGLE_SHEETS, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(datosPedido)
+        }).catch(error => {
+            console.error("No se pudo guardar el pedido en la planilla:", error);
+        });
     }
 
     renderMenu();
