@@ -488,7 +488,7 @@
         </div>
         <ul id="listaPedido"></ul>
         <div class="total-fila">
-            <span>Total:</span>
+            <span>Total + envio:</span>
             <span>$<span id="total">0</span></span>
         </div>
         <input type="text" id="nombreCliente" placeholder="Tu nombre">
@@ -665,7 +665,7 @@
         carrito.forEach(i => mensaje += `- ${i.nombre} ${i.carne} ${i.esPromo ? '(' + i.mods + ')' : (i.mods ? '(Sin: ' + i.mods + ')' : '')}\n`);
         mensaje += `\nDirección de envío: ${direccion}`;
         mensaje += `\nMétodo de pago: ${metodoPago}`;
-        mensaje += `\nTotal: $${total}`;
+        mensaje += `\nTotal + envio: $${total}`;
 
         guardarEnGoogleSheets({
             cliente: nombre,
