@@ -665,7 +665,7 @@
         carrito.forEach(i => mensaje += `- ${i.nombre} ${i.carne} ${i.esPromo ? '(' + i.mods + ')' : (i.mods ? '(Sin: ' + i.mods + ')' : '')}\n`);
         mensaje += `\nDirección de envío: ${direccion}`;
         mensaje += `\nMétodo de pago: ${metodoPago}`;
-        mensaje += `\nTotal + Envio: $${total}`;
+        mensaje += `\nTotal: $${total}\n + envio`;
 
         guardarEnGoogleSheets({
             cliente: nombre,
